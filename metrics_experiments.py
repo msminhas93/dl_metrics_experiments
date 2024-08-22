@@ -1,5 +1,4 @@
 import numpy as np
-import polars as pl
 from sklearn.metrics import (
     accuracy_score,
     precision_score,
@@ -11,8 +10,13 @@ from sklearn.metrics import (
     roc_curve,
 )
 import matplotlib.pyplot as plt
+import os
+import polars as pl
 import altair as alt
-import pandas as pd
+
+# Create 'charts' directory if it doesn't exist
+if not os.path.exists("charts"):
+    os.makedirs("charts")
 
 
 def generate_data(n_samples, imbalance, p):
@@ -36,7 +40,7 @@ def calculate_metrics(y_true, y_scores):
     return accuracy, precision, recall, f1, auroc
 
 
-n_samples = 1000
+n_samples = 10000
 ps = [0, 0.5, 1]
 imbalances = [0.5, 0.1, 0.9]
 results = []
@@ -89,8 +93,6 @@ for p in ps:
         # ROC Curve
         fpr, tpr, _ = roc_curve(y_true, y_scores)
         roc_curves.append((fpr, tpr, key))
-# Convert to DataFrame
-confusion_df = pd.DataFrame(confusion_matrices)
 
 # Plotting the confusion matrices
 fig, axes = plt.subplots(nrows=3, ncols=3, figsize=(15, 15))
@@ -98,11 +100,12 @@ fig, axes = plt.subplots(nrows=3, ncols=3, figsize=(15, 15))
 for i, p in enumerate(ps):
     for j, imbalance in enumerate(imbalances):
         ax = axes[i, j]
-        cm_data = confusion_df[
-            (confusion_df["probability_class_1"] == p)
-            & (confusion_df["imbalance"] == imbalance)
-        ]
-        tn, fp, fn, tp = cm_data[["TN", "FP", "FN", "TP"]].values[0]
+        cm_data = [
+            x
+            for x in confusion_matrices
+            if x["probability_class_1"] == p and x["imbalance"] == imbalance
+        ][0]
+        tn, fp, fn, tp = cm_data["TN"], cm_data["FP"], cm_data["FN"], cm_data["TP"]
         cm = np.array([[tn, fp], [fn, tp]])
 
         cax = ax.matshow(cm, cmap="Blues")
@@ -111,11 +114,21 @@ for i, p in enumerate(ps):
         ax.set_ylabel("Actual")
 
         for (k, l), val in np.ndenumerate(cm):
-            ax.text(l, k, f"{val}", ha="center", va="center", color="black")
+            ax.text(
+                l,
+                k,
+                f"{val}",
+                ha="center",
+                va="center",
+                color="red",
+                fontsize="xx-large",
+            )
 
 # Adjust layout manually
 plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1, wspace=0.4, hspace=0.4)
-plt.show()
+plt.savefig("charts/confusion_matrices.png")
+plt.close()
+
 # Overlay ROC Curves
 plt.figure(figsize=(8, 6))
 for fpr, tpr, label in roc_curves:
@@ -125,7 +138,8 @@ plt.xlabel("False Positive Rate")
 plt.ylabel("True Positive Rate")
 plt.title("ROC Curves for Different Scenarios")
 plt.legend(loc="lower right", fontsize="small")
-plt.show()
+plt.savefig("charts/roc_curves.png")
+plt.close()
 
 # Create a joint table for classification reports
 joint_report_df = pl.DataFrame(report_data)
@@ -145,4 +159,4 @@ for metric in "precision recall f1-score".split():
         )
         .facet(column="probability_of_class_1:O", row="imbalance:O")
     )
-    chart.display()
+    chart.save(f"charts/{metric}_chart.png")
