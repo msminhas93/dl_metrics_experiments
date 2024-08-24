@@ -15,8 +15,17 @@
     - [Threshold independent metrics](#threshold-independent-metrics)
       - [AUROC (Area Under the ROC Curve)](#auroc-area-under-the-roc-curve)
       - [PR Curve](#pr-curve)
-  - [Experiment Setup](#experiment-setup)
+  - [Experimental Setup](#experimental-setup)
+  - [Results](#results)
+    - [Accuracy](#accuracy-1)
+    - [Precision](#precision-1)
+    - [Recall](#recall)
+    - [F1 Score](#f1-score-1)
+    - [Confusion Matrix](#confusion-matrix-1)
+    - [ROC Curve](#roc-curve)
+    - [PR Curve](#pr-curve-1)
   - [Discussion](#discussion)
+  - [Conclusion](#conclusion)
   - [References](#references)
 
 
@@ -121,27 +130,53 @@ A **Precision-Recall (PR) curve** is a graphical representation that illustrates
 
 The PR curve is particularly useful for evaluating the performance of models on imbalanced datasets, where the positive class is of greater interest. It helps in understanding how well a model can identify positive instances while minimizing false positives.
 
-### Experiment Setup
+### Experimental Setup
 The experiment involves evaluating the performance of binary classifiers under varying conditions of class imbalance and prediction probabilities. A synthetic dataset is generated with 10,000 samples, where the true class labels (`y_true`) are created based on specified imbalance ratios (0.5, 0.1, 0.9), representing balanced, minority, and majority class scenarios, respectively. Prediction scores (`y_scores`) are generated with probabilities of predicting class 1 set to 0 (biased), 0.5 (random), and 1 (biased).
 
 For each combination of probability and imbalance, key performance metrics are computed, including accuracy, precision, recall, F1-score, and AUROC. Confusion matrices are constructed to visualize the distribution of true positives, false positives, true negatives, and false negatives. Precision-Recall (PR) and ROC curves are plotted to assess the trade-offs between precision and recall, and the ability to differentiate between classes across thresholds.
 
 The results are visualized for confusion matrices, ROC/PR curves and classification reports, providing a comprehensive view of classifier performance under different scenarios. The aim is to understand how class imbalance and prediction biases affect various evaluation metrics, offering insights into model robustness and reliability.
 
+### Results
+This section contains the results from the experiments. For accuracy, precision, recall, f1-scores the rows represent the percentage of imbalance. The columns are all 0 biased, random and all 1 biased classifiers. 
+
+#### Accuracy 
+![alt text](charts/accuracy_chart.png)
+#### Precision 
+![alt text](charts/precision_chart.png)
+#### Recall 
+![alt text](charts/recall_chart.png)
+#### F1 Score 
+![alt text](charts/f1-score_chart.png)
+#### Confusion Matrix 
+![alt text](charts/confusion_matrices.png)
+#### ROC Curve 
+![alt text](charts/roc_curves.png)
+#### PR Curve 
+![alt text](charts/pr_curves.png)
 
 ### Discussion
 
-
-
 | **Metric**           | **Behavior Across Classifier Types**                                                                                                                     | **Impact of Class Imbalance**                                                                   | **When to Use**                                                                        | **Key Considerations**                                                                                                              |
 | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| **Accuracy**         | - **Random**: Close to majority class proportion<br>- **All 1**: Equals positive class proportion<br>- **All 0**: Equals negative class proportion       | - Highly sensitive; can be misleading in imbalanced datasets                                    | - Use in balanced datasets or when all classes are equally important                   | - Can be deceptive in imbalanced datasets; consider other metrics for a more comprehensive evaluation                               |
-| **Precision**        | - **Random**: Low, near baseline precision<br>- **All 1**: Varies; low if positive class is minority<br>- **All 0**: Undefined (no positive predictions) | - Highly sensitive; can be misleadingly low with many false positives in large negative classes | - When the cost of false positives is high (e.g., spam detection, medical diagnosis)   | - Should be balanced with recall; precision alone may not capture overall performance                                               |
-| **Recall**           | - **Random**: Generally low<br>- **All 1**: Always 1.0<br>- **All 0**: Always 0.0                                                                        | - Less sensitive; focuses on identifying positives regardless of negatives                      | - When missing positive instances is costly (e.g., disease detection, fraud detection) | - High recall alone doesn't ensure good performance; consider precision as well                                                     |
+| **Accuracy**         | - **Random**: Equal to 0.5.<br>- **All 1**: Equals positive class proportion<br>- **All 0**: Equals negative class proportion                            | - Highly sensitive; can be misleading in imbalanced datasets                                    | - Use in balanced datasets or when all classes are equally important                   | - Can be deceptive in imbalanced datasets; consider other metrics for a more comprehensive evaluation                               |
+| **Precision**        | - **Random**: Low, near baseline precision<br>- **All 1**: Varies; low if positive class is minority<br>- **All 0**: Undefined (no positive predictions) | - Cases where the number of actual positives is very, very low, say 1-2 examples in total, precision is less meaningful and less useful as a metric [3]. | - When the cost of false positives is high (e.g., spam detection, medical diagnosis)   | - Should be balanced with recall; precision alone may not capture overall performance                                               |
+| **Recall**           | - **Random**: Generally low<br>- **All 1**: Always 1.0<br>- **All 0**: Always 0.0                                                                        | - In an imbalanced dataset where the number of actual positives is very, very low, say 1-2 examples in total, recall is less meaningful and less useful as a metric [3].                      | - When missing positive instances is costly (e.g., disease detection, fraud detection) | - High recall alone doesn't ensure good performance; consider precision as well                                                     |
 | **F1 Score**         | - **Random**: Low<br>- **All 1**: Moderate<br>- **All 0**: Zero                                                                                          | - Sensitive; balancing precision and recall is challenging in imbalanced datasets               | - When seeking a balance between precision and recall                                  | - Provides a single metric for evaluation, but may not capture nuances in highly imbalanced datasets                                |
 | **PR Curve**         | - **Random**: Flat, near baseline<br>- **All 1**: Horizontal line from (1, precision)<br>- **All 0**: Not meaningful (recall is 0)                       | - Highly sensitive; shifts significantly with class distribution changes                        | - In imbalanced datasets, especially when focusing on the minority class               | - Provides a clear picture of performance across different thresholds; consider AUC-PR for a single summary metric                  |
 | **ROC Curve**        | - **Random**: AUROC ≈ 0.5<br>- **All 1**: Not meaningful (no true negatives)<br>- **All 0**: Not meaningful (no true positives)                          | - Less sensitive; can be overly optimistic in imbalanced datasets                               | - When comparing multiple models or when both classes are equally important            | - Can be misleading in highly imbalanced datasets; consider PR curve as an alternative                                              |
 | **Confusion Matrix** | - **Random**: Mix of TP, FP, TN, FN<br>- **All 1**: Zero TN, many FP<br>- **All 0**: Zero TP, many FN                                                    | - Highly sensitive; clearly shows skew in predictions                                           | - For detailed error analysis and understanding model behavior                         | - Provides comprehensive information but requires interpretation; consider normalizing for better visualization in imbalanced cases |
+
+### Conclusion
+Evaluating classifier performance in the context of imbalanced datasets is crucial for understanding model effectiveness. Various metrics, including accuracy, precision, recall, F1 score, AUROC, and PR curves, each provide unique insights but have limitations, particularly when class distributions are skewed.
+
+**Accuracy** can be misleading, often reflecting the majority class's prevalence rather than true performance. **Precision** measures the correctness of positive predictions, while **recall** focuses on capturing all actual positives. The **F1 score** balances precision and recall, making it useful when both false positives and negatives matter.
+
+The **AUROC** provides a general sense of a model's ranking ability but may be overly optimistic in imbalanced scenarios. In contrast, the **PR curve** is more informative for evaluating models on imbalanced datasets, highlighting the trade-off between precision and recall.
+
+The **confusion matrix** offers a detailed breakdown of predictions, essential for identifying specific areas of error. It is particularly valuable in imbalanced contexts, where it can reveal biases toward the majority class.
+
+In summary, a comprehensive evaluation strategy that incorporates multiple metrics is essential for accurately assessing classifier performance, especially in imbalanced datasets. This approach enables practitioners to make informed decisions about model selection and optimization, ultimately leading to more reliable classification outcomes.
 
 ### References
 [1] https://en.wikipedia.org/wiki/Evaluation_of_binary_classifiers
