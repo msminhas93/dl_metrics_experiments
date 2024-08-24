@@ -8,6 +8,7 @@ from sklearn.metrics import (
     confusion_matrix,
     classification_report,
     roc_curve,
+    precision_recall_curve,
 )
 import matplotlib.pyplot as plt
 import os
@@ -46,6 +47,7 @@ imbalances = [0.5, 0.1, 0.9]
 results = []
 report_data = []
 roc_curves = []
+pr_curves = []
 confusion_matrices = []
 
 for p in ps:
@@ -94,6 +96,10 @@ for p in ps:
         fpr, tpr, _ = roc_curve(y_true, y_scores)
         roc_curves.append((fpr, tpr, key))
 
+        # Precision-Recall Curve
+        precision, recall, _ = precision_recall_curve(y_true, y_scores)
+        pr_curves.append((precision, recall, key))
+
 # Plotting the confusion matrices
 fig, axes = plt.subplots(nrows=3, ncols=3, figsize=(15, 15))
 
@@ -139,6 +145,17 @@ plt.ylabel("True Positive Rate")
 plt.title("ROC Curves for Different Scenarios")
 plt.legend(loc="lower right", fontsize="small")
 plt.savefig("charts/roc_curves.png")
+plt.close()
+
+# Overlay Precision-Recall Curves
+plt.figure(figsize=(8, 6))
+for precision, recall, label in pr_curves:
+    plt.plot(recall, precision, label=label)
+plt.xlabel("Recall")
+plt.ylabel("Precision")
+plt.title("Precision-Recall Curves for Different Scenarios")
+plt.legend(loc="lower right", fontsize="small")
+plt.savefig("charts/pr_curves.png")
 plt.close()
 
 # Create a joint table for classification reports
