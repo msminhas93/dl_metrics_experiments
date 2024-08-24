@@ -54,6 +54,7 @@ for p in ps:
     for imbalance in imbalances:
         y_true, y_scores = generate_data(n_samples, imbalance, p)
         metrics = calculate_metrics(y_true, y_scores)
+        accuracy = metrics[0]
         key = f"probability={p}, imbalance={imbalance}"
         results.append((key, p, imbalance, *metrics))
 
@@ -88,6 +89,7 @@ for p in ps:
                         "precision": metrics["precision"],
                         "recall": metrics["recall"],
                         "f1-score": metrics["f1-score"],
+                        "accuracy": accuracy,
                         "support": metrics["support"],
                     }
                 )
@@ -164,7 +166,7 @@ joint_report_df = pl.DataFrame(report_data)
 # Convert Polars DataFrame to Pandas for Altair compatibility
 df = joint_report_df
 
-for metric in "precision recall f1-score".split():
+for metric in "precision recall f1-score accuracy".split():
     # Create an Altair chart with both probability_of_class_1 and imbalance
     chart = (
         alt.Chart(df)
