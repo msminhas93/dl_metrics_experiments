@@ -7,8 +7,8 @@ from sklearn.metrics import (
     roc_auc_score,
     confusion_matrix,
     classification_report,
-    roc_curve,
-    precision_recall_curve,
+    RocCurveDisplay,
+    PrecisionRecallDisplay,
 )
 import matplotlib.pyplot as plt
 import os
@@ -71,6 +71,7 @@ for p in ps:
                 "TP": tp,
             }
         )
+
         # Classification Report
         report = classification_report(
             y_true, y_scores, zero_division=0, output_dict=True
@@ -95,12 +96,12 @@ for p in ps:
                 )
 
         # ROC Curve
-        fpr, tpr, _ = roc_curve(y_true, y_scores)
-        roc_curves.append((fpr, tpr, key))
+        roc_display = RocCurveDisplay.from_predictions(y_true, y_scores, name=key)
+        roc_curves.append(roc_display)
 
         # Precision-Recall Curve
-        precision, recall, _ = precision_recall_curve(y_true, y_scores)
-        pr_curves.append((precision, recall, key))
+        pr_display = PrecisionRecallDisplay.from_predictions(y_true, y_scores, name=key)
+        pr_curves.append(pr_display)
 
 # Plotting the confusion matrices
 fig, axes = plt.subplots(nrows=3, ncols=3, figsize=(15, 15))
@@ -132,31 +133,30 @@ for i, p in enumerate(ps):
                 fontsize="xx-large",
             )
 
-# Adjust layout manually
 plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1, wspace=0.4, hspace=0.4)
 plt.savefig("charts/confusion_matrices.png")
 plt.close()
 
 # Overlay ROC Curves
-plt.figure(figsize=(8, 6))
-for fpr, tpr, label in roc_curves:
-    plt.plot(fpr, tpr, label=label)
-plt.plot([0, 1], [0, 1], "k--")
-plt.xlabel("False Positive Rate")
-plt.ylabel("True Positive Rate")
-plt.title("ROC Curves for Different Scenarios")
-plt.legend(loc="lower right", fontsize="small")
+fig, ax = plt.subplots(figsize=(8, 6))
+for roc_display in roc_curves:
+    roc_display.plot(ax=ax)
+ax.plot([0, 1], [0, 1], "k--")
+ax.set_xlabel("False Positive Rate")
+ax.set_ylabel("True Positive Rate")
+ax.set_title("ROC Curves for Different Scenarios")
+ax.legend(loc="lower right", fontsize="small")
 plt.savefig("charts/roc_curves.png")
 plt.close()
 
 # Overlay Precision-Recall Curves
-plt.figure(figsize=(8, 6))
-for precision, recall, label in pr_curves:
-    plt.plot(recall, precision, label=label)
-plt.xlabel("Recall")
-plt.ylabel("Precision")
-plt.title("Precision-Recall Curves for Different Scenarios")
-plt.legend(loc="lower right", fontsize="small")
+fig, ax = plt.subplots(figsize=(8, 6))
+for pr_display in pr_curves:
+    pr_display.plot(ax=ax)
+ax.set_xlabel("Recall")
+ax.set_ylabel("Precision")
+ax.set_title("Precision-Recall Curves for Different Scenarios")
+ax.legend(loc="lower right", fontsize="small")
 plt.savefig("charts/pr_curves.png")
 plt.close()
 
