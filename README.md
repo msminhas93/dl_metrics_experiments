@@ -31,11 +31,11 @@
 
 ### Introduction
 
-If you are into deep learning or machine learning you would have wanted to understand the performance of your model. There are several metrics available for measuring performance. However, if you get stuck in the horrible situation of solely focusing numbers without looking closely at what is happening, you are just deluding yourself and not assessing the situation fairly.
+If you work in the deep learning or machine learning space you would have wanted to understand the performance of your model. There are several metrics available for measuring performance. However, if you get stuck in the situation of solely focusing numbers without looking closely at what is happening, you are just deluding yourself and not assessing the situation fairly.
 
 Using this post I want to spread awareness about some common pitfalls that you can encounter and how to potentially avoid them. Hopefully it will add value to your skills. I will be limiting the scope of the discussion to binary classification metrics which is probably one of the most common modeling problem. 
 
-Evaluating a classifier involves understanding how well your model makes prediction given certain input(s) using metrics like accuracy, precision, recall, F1-score, and AUROC. There is no magic metric and value that can be applicable to every use case. These will depend on several factors including your data distribution, tolerance to false positives of false negatives etc. 
+Evaluating a classifier involves understanding how well your model makes prediction given certain input(s) using metrics like accuracy, precision, recall, F1-score, and AUROC. There is no magic metric and value that will be applicable to every use case. These will depend on several factors including your data distribution, tolerance to false positives of false negatives etc. 
 
 Class imbalance can significantly affect the metrics, leading to misleading interpretations. We will analyze the impact of class imbalance and different classifiers namely: random, always 0 and always 1, on these metrics. Let us start with the definition of these metics. 
 
